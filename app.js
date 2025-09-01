@@ -1,4 +1,4 @@
-import { CreateMLCEngine, prebuiltAppConfig } from "https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm@latest/+esm";
+import { CreateMLCEngine, prebuiltAppConfig } from "https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm@latest/+esm?v=5";
 
 class LexaTranslator {
     constructor() {
