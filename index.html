@@ -161,12 +161,12 @@ ${xmlText}
 
 Task: Evaluate how well the XML implementation captures the statutory requirements. Analyze coverage, accuracy, completeness, and structure. Identify any gaps, misrepresentations, or improvements needed.`;
                 
-                const response = await fetch(`${API_BASE_URL}/translate`, {
+                const response = await fetch(`${API_BASE_URL}/evaluate`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        text: userMessage,
-                        direction: 'legal_to_xml'
+                        legal_text: legalText,
+                        xml_text: xmlText
                     })
                 });
 
