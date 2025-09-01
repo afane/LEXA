@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LEXA - Legal to XML AI Translator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>LEXA</h1>
+            <p>AI-Powered Legal Text ↔ XML Translator</p>
+            <div id="browser-check" class="warning hidden">
+                ⚠️ WebGPU not supported. Please use Chrome, Edge, or Safari with hardware acceleration enabled.
+            </div>
+        </header>
+
+        <div class="controls">
+            <div class="model-status">
+                <span id="model-status">Initializing...</span>
+                <div id="loading-bar" class="loading-bar hidden">
+                    <div id="progress-fill" class="progress-fill"></div>
+                </div>
+            </div>
+            
+            <select id="translation-direction">
+                <option value="law-to-xml">Legal Text → XML</option>
+                <option value="xml-to-law">XML → Legal Text</option>
+            </select>
+        </div>
+
+        <div class="main-content">
+            <div class="input-section">
+                <label for="input-text">Input:</label>
+                <textarea id="input-text" placeholder="Paste your legal text or XML here..."></textarea>
+            </div>
+            
+            <div class="controls-center">
+                <button id="translate-btn" disabled>Translate</button>
+                <button id="clear-btn">Clear</button>
+            </div>
+            
+            <div class="output-section">
+                <label for="output-text">Output:</label>
+                <textarea id="output-text" readonly placeholder="Translation will appear here..."></textarea>
+            </div>
+        </div>
+
+        <footer>
+            <p><strong>Note:</strong> First load downloads ~4-8GB AI model to your browser. Subsequent loads are instant.</p>
+            <p>Requires: Chrome/Edge/Safari with 8-16GB RAM. No data leaves your browser.</p>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm@latest/dist/index.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
