@@ -1,64 +1,210 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Lexa - Legal XML Translator</title>
+    <title>LEXA - Legal XML Evaluation and Audit</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
         body {
-            font-family: Arial, sans-serif;
-            max-width: 1200px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 20px;
-            background-color: #f5f5f5;
+            background-color: #f8f9fa;
         }
         .header {
             text-align: center;
             margin-bottom: 30px;
             color: #333;
         }
-        .container {
+        .header h1 {
+            margin: 0;
+            font-size: 2.2em;
+            font-weight: 600;
+        }
+        .header p {
+            margin: 8px 0 0 0;
+            color: #666;
+            font-size: 1.1em;
+        }
+        
+        /* Mode Toggle */
+        .mode-toggle {
             display: flex;
-            gap: 20px;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            justify-content: center;
+            margin-bottom: 30px;
         }
-        .input-section, .output-section { flex: 1; }
-        .section-title {
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 10px;
-            color: #444;
+        .toggle-container {
+            background: #e9ecef;
+            border-radius: 25px;
+            padding: 4px;
+            display: flex;
+            position: relative;
         }
-        textarea {
-            width: 100%;
-            height: 300px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            padding: 10px;
-            font-family: monospace;
-            font-size: 14px;
-            resize: vertical;
-        }
-        button {
+        .toggle-option {
             padding: 12px 24px;
-            margin: 10px 5px 0 0;
-            background-color: #007bff;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            z-index: 2;
+            position: relative;
+        }
+        .toggle-option.active {
+            background: #007bff;
             color: white;
-            border: none;
+        }
+        .toggle-option:not(.active) {
+            color: #666;
+        }
+        .toggle-option:not(.active):hover {
+            color: #007bff;
+        }
+        
+        /* Main Container */
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        
+        /* Evaluate Mode */
+        .evaluate-mode {
+            display: none;
+        }
+        .evaluate-mode.active {
+            display: block;
+        }
+        .field-group {
+            margin-bottom: 30px;
+        }
+        .field-label {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        .helper-text {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+            font-style: italic;
+        }
+        .evaluate-textarea {
+            width: 100%;
+            min-height: 200px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+        }
+        .evaluate-textarea:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+        .evaluate-textarea[readonly] {
+            background-color: #f8f9fa;
+            cursor: default;
+        }
+        .xml-error {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 8px;
+            padding: 10px;
+            background: #f8d7da;
             border-radius: 4px;
+            border: 1px solid #f5c6cb;
+        }
+        
+        /* Translate Mode */
+        .translate-mode {
+            display: none;
+        }
+        .translate-mode.active {
+            display: flex;
+            gap: 30px;
+        }
+        .translate-section {
+            flex: 1;
+        }
+        .translate-controls {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .direction-select {
+            padding: 8px 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 14px;
+            background: white;
+        }
+        .translate-textarea {
+            width: 100%;
+            height: 400px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+        }
+        .translate-textarea:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+        .translate-textarea[readonly] {
+            background-color: #f8f9fa;
+        }
+        
+        /* Buttons */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
             cursor: pointer;
             font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin-right: 10px;
         }
-        button:hover {
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+        .btn-primary:hover:not(:disabled) {
             background-color: #0056b3;
         }
-        button:disabled {
+        .btn-primary:disabled {
             background-color: #6c757d;
             cursor: not-allowed;
         }
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background-color: #545b62;
+        }
+        .btn-outline {
+            background-color: transparent;
+            border: 2px solid #007bff;
+            color: #007bff;
+        }
+        .btn-outline:hover {
+            background-color: #007bff;
+            color: white;
+        }
+        
+        /* Status and Loading */
         .loading {
             color: #666;
             font-style: italic;
@@ -66,95 +212,382 @@
         .error {
             color: #dc3545;
             background-color: #f8d7da;
-            padding: 10px;
-            border-radius: 4px;
-            margin-top: 10px;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border: 1px solid #f5c6cb;
+        }
+        
+        /* Action Bar */
+        .action-bar {
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .action-left {
+            display: flex;
+            align-items: center;
+        }
+        .action-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>Lexa - Legal XML Translator</h1>
-        <p>Convert between legal statutes and structured XML format</p>
+        <h1>LEXA - Legal XML Evaluation and Audit</h1>
+        <p>Evaluate fidelity of XML rules against statutory requirements</p>
+    </div>
+
+    <div class="mode-toggle">
+        <div class="toggle-container">
+            <div class="toggle-option active" id="evaluateToggle" onclick="switchMode('evaluate')">
+                Evaluate
+            </div>
+            <div class="toggle-option" id="translateToggle" onclick="switchMode('translate')">
+                Translate
+            </div>
+        </div>
     </div>
 
     <div class="container">
-        <div class="input-section">
-            <div class="section-title">Input</div>
-            <textarea id="inputText" placeholder="Enter legal text or XML code here..."></textarea>
-            <br>
-            <button id="legalToXmlBtn" onclick="translateToXML()">Legal Text → XML</button>
-            <button id="xmlToLegalBtn" onclick="translateToLegal()">XML → Legal Text</button>
+        <!-- Evaluate Mode -->
+        <div id="evaluateMode" class="evaluate-mode active">
+            <div class="field-group">
+                <div class="field-label">Statutory reference</div>
+                <div class="helper-text">Paste the governing statute or policy excerpt.</div>
+                <textarea id="statuteText" class="evaluate-textarea" placeholder="Enter the statutory text here..."></textarea>
+            </div>
+            
+            <div class="field-group">
+                <div class="field-label">Implemented decision rules (XML)</div>
+                <div class="helper-text">Paste the XML rules that implement the requirement.</div>
+                <textarea id="xmlRules" class="evaluate-textarea" placeholder="Enter the XML implementation here..."></textarea>
+                <div id="xmlError" class="xml-error" style="display: none;"></div>
+            </div>
+            
+            <div class="field-group">
+                <div class="field-label">Evaluation report (read only)</div>
+                <textarea id="evaluationReport" class="evaluate-textarea" readonly placeholder="Click Evaluate to generate a fidelity assessment..."></textarea>
+            </div>
+            
+            <div class="action-bar">
+                <div class="action-left">
+                    <button id="evaluateBtn" class="btn btn-primary" onclick="evaluate()">
+                        Evaluate
+                    </button>
+                </div>
+                <div class="action-right">
+                    <button class="btn btn-outline" onclick="copyResult('evaluationReport')">Copy</button>
+                    <button class="btn btn-secondary" onclick="clearEvaluate()">Clear</button>
+                </div>
+            </div>
         </div>
-        <div class="output-section">
-            <div class="section-title">Output</div>
-            <textarea id="outputText" readonly placeholder="Translation results will appear here..."></textarea>
-            <div id="errorDiv"></div>
+
+        <!-- Translate Mode -->
+        <div id="translateMode" class="translate-mode">
+            <div class="translate-section">
+                <div class="translate-controls">
+                    <select id="directionSelect" class="direction-select" onchange="updateTranslateUI()">
+                        <option value="legal_to_xml">Law → XML</option>
+                        <option value="xml_to_legal">XML → Law</option>
+                    </select>
+                </div>
+                <textarea id="translateInput" class="translate-textarea" placeholder="Enter text to translate..."></textarea>
+            </div>
+            
+            <div class="translate-section">
+                <div class="translate-controls">
+                    <button id="translateBtn" class="btn btn-primary" onclick="translate()">
+                        Translate
+                    </button>
+                </div>
+                <textarea id="translateOutput" class="translate-textarea" readonly placeholder="Translation results will appear here..."></textarea>
+                <div id="translateError"></div>
+                
+                <div class="action-bar">
+                    <div class="action-left"></div>
+                    <div class="action-right">
+                        <button class="btn btn-outline" onclick="copyResult('translateOutput')">Copy</button>
+                        <button class="btn btn-secondary" onclick="clearTranslate()">Clear</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        async function translate(direction) {
-            const inputText = document.getElementById('inputText').value;
-            const outputText = document.getElementById('outputText');
-            const errorDiv = document.getElementById('errorDiv');
-            const buttons = document.querySelectorAll('button');
+        // Mode switching
+        function switchMode(mode) {
+            const evaluateMode = document.getElementById('evaluateMode');
+            const translateMode = document.getElementById('translateMode');
+            const evaluateToggle = document.getElementById('evaluateToggle');
+            const translateToggle = document.getElementById('translateToggle');
+            
+            if (mode === 'evaluate') {
+                evaluateMode.classList.add('active');
+                translateMode.classList.remove('active');
+                evaluateToggle.classList.add('active');
+                translateToggle.classList.remove('active');
+            } else {
+                evaluateMode.classList.remove('active');
+                translateMode.classList.add('active');
+                evaluateToggle.classList.remove('active');
+                translateToggle.classList.add('active');
+            }
+        }
+        
+        // Prefill data for Evaluate mode
+        const STATUTE_PREFILL = `1253.9. An unemployed individual may not be disqualified for unemployment compensation benefits solely on the basis that he or she is a student. An unemployed individual may be considered to be able and available for work pursuant to subdivision (c) of Section 1253, if the school attendance does not eliminate a substantial portion of the individual's full-time labor market availability. If an unemployed individual restricts his or her availability to part-time work due to school attendance, he or she may be considered to be able to work and available for work if he or she meets the criteria set forth in Section 1253.8.`;
+        
+        const XML_PREFILL = `<statute id="1253.9">
+  <sectionHeading>Student unemployment compensation eligibility</sectionHeading>
+  <provision num="1">
+    <rule type="non-disqualification">
+      <statement>
+        An unemployed individual may not be disqualified for unemployment compensation benefits
+        <condition type="reason">on the basis that he or she is a student</condition>.
+      </statement>
+    </rule>
+  </provision>
+  <provision num="2">
+    <rule type="eligibility_for_availability">
+      <statement>
+        An unemployed individual may be considered to be able and available for work
+        <pursuantTo>
+          <citation ref="1253(b)">subdivision (b) of Section 1253</citation>
+        </pursuantTo>,
+        <condition type="if">the school attendance does not eliminate a portion of the individual's full-time labor market availability</condition>.
+      </statement>
+    </rule>
+  </provision>
+  <provision num="3">
+    <rule type="conditional_eligibility_for_part_time_work" minHours="30">
+      <statement>
+        <ifClause>If an unemployed individual restricts availability to part-time work</ifClause>,
+        <thenClause>
+          the individual may be considered able and available for work
+          <condition type="if">the criteria set forth in <citation ref="1253.7">Section 1253.7</citation> are met</condition>.
+        </thenClause>
+      </statement>
+    </rule>
+  </provision>
+</statute>`;
+        
+        // Initialize page
+        window.addEventListener('load', function() {
+            document.getElementById('statuteText').value = STATUTE_PREFILL;
+            document.getElementById('xmlRules').value = XML_PREFILL;
+            validateXML(); // Initial validation
+        });
+        
+        // XML Validation
+        function validateXML() {
+            const xmlText = document.getElementById('xmlRules').value.trim();
+            const errorDiv = document.getElementById('xmlError');
+            const evaluateBtn = document.getElementById('evaluateBtn');
+            
+            if (!xmlText) {
+                errorDiv.style.display = 'none';
+                evaluateBtn.disabled = true;
+                return false;
+            }
+            
+            try {
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+                const parseError = xmlDoc.getElementsByTagName('parsererror')[0];
+                
+                if (parseError) {
+                    throw new Error(parseError.textContent);
+                }
+                
+                errorDiv.style.display = 'none';
+                updateEvaluateButton();
+                return true;
+            } catch (error) {
+                errorDiv.textContent = 'XML Parse Error: ' + error.message;
+                errorDiv.style.display = 'block';
+                evaluateBtn.disabled = true;
+                return false;
+            }
+        }
+        
+        // Update Evaluate button state
+        function updateEvaluateButton() {
+            const statuteText = document.getElementById('statuteText').value.trim();
+            const xmlText = document.getElementById('xmlRules').value.trim();
+            const evaluateBtn = document.getElementById('evaluateBtn');
+            
+            evaluateBtn.disabled = !statuteText || !xmlText;
+        }
+        
+        // Event listeners
+        document.getElementById('xmlRules').addEventListener('input', validateXML);
+        document.getElementById('statuteText').addEventListener('input', updateEvaluateButton);
+        
+        // API call function
+        async function callAPI(endpoint, data, systemPrompt, userMessage) {
+            const API_BASE_URL = window.location.hostname === 'afane.github.io' 
+                ? 'https://lexa-production.up.railway.app'
+                : 'http://localhost:5000';
+            
+            // For now, we'll use the existing backend format
+            // The system prompt will be incorporated into the user message
+            const finalMessage = systemPrompt ? `${systemPrompt}\n\n${userMessage}` : userMessage;
+            
+            const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    text: finalMessage,
+                    direction: data.direction || 'legal_to_xml'
+                })
+            });
+            
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.detail || 'Request failed');
+            }
+            
+            return await response.json();
+        }
+        
+        // Evaluate function
+        async function evaluate() {
+            const statuteText = document.getElementById('statuteText').value.trim();
+            const xmlText = document.getElementById('xmlRules').value.trim();
+            const reportArea = document.getElementById('evaluationReport');
+            const evaluateBtn = document.getElementById('evaluateBtn');
+            
+            if (!validateXML()) return;
+            
+            const systemPrompt = `You are an independent reviewer assessing whether XML decision rules faithfully implement the cited statute or policy. Your task is to check fidelity, completeness, and clarity. Produce a concise report with the following sections in this exact order:
+1. Verdict: Faithful, Partially faithful, or Not faithful
+2. Score: 0 to 100 with a one line justification
+3. Coverage check: list each statutory condition, threshold, exception, timing rule, and defined term, and state whether the XML implements it. Quote short phrases from the statute and point to corresponding XML elements or attributes.
+4. Gaps and misalignments: enumerate missing conditions, wrong thresholds, inverted logic, missing exceptions, ambiguous scopes. For each, propose a minimal XML patch or comment level fix.
+5. Edge cases: list boundary values and scenarios the XML should handle, noting any uncovered cases.
+6. Plain English summary: two or three sentences for adjudicators. Be precise and avoid speculation.`;
+            
+            const userMessage = `Statutory reference:
 
-            // Clear previous errors
+${statuteText}
+
+
+Implemented decision rules (XML):
+
+${xmlText}
+
+
+Evaluate fidelity and completeness using the required report format.`;
+            
+            reportArea.value = 'Evaluating...';
+            reportArea.className = 'evaluate-textarea loading';
+            evaluateBtn.disabled = true;
+            
+            try {
+                const result = await callAPI('/translate', { direction: 'evaluate' }, systemPrompt, userMessage);
+                reportArea.value = result.result;
+                reportArea.className = 'evaluate-textarea';
+            } catch (error) {
+                reportArea.value = '';
+                reportArea.className = 'evaluate-textarea';
+                showError('Evaluation failed: ' + error.message, 'evaluateMode');
+            } finally {
+                updateEvaluateButton();
+            }
+        }
+        
+        // Translate function
+        async function translate() {
+            const input = document.getElementById('translateInput').value.trim();
+            const output = document.getElementById('translateOutput');
+            const direction = document.getElementById('directionSelect').value;
+            const translateBtn = document.getElementById('translateBtn');
+            const errorDiv = document.getElementById('translateError');
+            
             errorDiv.innerHTML = '';
-
-            if (!inputText.trim()) {
-                showError('Please enter some text to translate');
+            
+            if (!input) {
+                showError('Please enter text to translate', 'translateMode');
                 return;
             }
-
-            // Show loading state
-            outputText.value = 'Translating...';
-            outputText.className = 'loading';
-            buttons.forEach(btn => btn.disabled = true);
-
+            
+            const systemPrompt = `You translate between statutory language and executable XML decision rules. Law → XML: extract conditions, definitions, thresholds, exceptions, and outputs. Emit well formed XML with clear element names and brief comments quoting the legal phrases used. XML → Law: restate each rule in plain legal English with numbered conditions, scope, and exceptions. Flag ambiguities or missing coverage.`;
+            
+            let userMessage;
+            if (direction === 'legal_to_xml') {
+                userMessage = `Input statutory text:
+${input}
+Task: Produce executable XML decision rules that implement this text. Include variable names, datatypes, thresholds, and explicit exceptions. Add brief XML comments quoting the phrases you implemented.`;
+            } else {
+                userMessage = `Input XML decision rules:
+${input}
+Task: Translate the XML into clear legal English. Number each rule. Describe conditions, outputs, exceptions, and any uncovered boundary cases.`;
+            }
+            
+            output.value = 'Translating...';
+            output.className = 'translate-textarea loading';
+            translateBtn.disabled = true;
+            
             try {
-                // Use environment variable or default to localhost for development
-                const API_BASE_URL = window.location.hostname === 'afane.github.io' 
-                    ? 'https://lexa-production.up.railway.app'
-                    : 'http://localhost:5000';
-                
-                const response = await fetch(`${API_BASE_URL}/translate`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        text: inputText,
-                        direction: direction
-                    })
-                });
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.detail || 'Translation failed');
-                }
-
-                outputText.value = data.result;
-                outputText.className = '';
+                const result = await callAPI('/translate', { direction }, systemPrompt, userMessage);
+                output.value = result.result;
+                output.className = 'translate-textarea';
             } catch (error) {
-                outputText.value = '';
-                showError('Translation failed: ' + error.message);
+                output.value = '';
+                output.className = 'translate-textarea';
+                showError('Translation failed: ' + error.message, 'translateMode');
             } finally {
-                buttons.forEach(btn => btn.disabled = false);
+                translateBtn.disabled = false;
             }
         }
-
-        function showError(message) {
-            const errorDiv = document.getElementById('errorDiv');
+        
+        // Utility functions
+        function showError(message, mode) {
+            const errorDiv = mode === 'evaluateMode' ? 
+                document.querySelector('#evaluateMode .error') || createErrorDiv('evaluateMode') :
+                document.getElementById('translateError');
+            
             errorDiv.innerHTML = `<div class="error">${message}</div>`;
         }
-
-        function translateToXML() {
-            translate('legal_to_xml');
+        
+        function createErrorDiv(mode) {
+            const div = document.createElement('div');
+            div.className = 'error';
+            document.getElementById(mode).appendChild(div);
+            return div;
         }
-
-        function translateToLegal() {
-            translate('xml_to_legal');
+        
+        function copyResult(textareaId) {
+            const textarea = document.getElementById(textareaId);
+            if (textarea.value.trim()) {
+                navigator.clipboard.writeText(textarea.value).then(() => {
+                    // Brief visual feedback
+                    const btn = event.target;
+                    const originalText = btn.textContent;
+                    btn.textContent = 'Copied!';
+                    setTimeout(() => btn.textContent = originalText, 1500);
+                });
+            }
+        }
+        
+        function clearEvaluate() {
+            document.getElementById('evaluationReport').value = '';
+        }
+        
+        function clearTranslate() {
+            document.getElementById('translateInput').value = '';
+            document.getElementById('translateOutput').value = '';
+            document.getElementById('translateError').innerHTML = '';
+        }
+        
+        function updateTranslateUI() {
+            // This function can be used for future direction-specific UI updates
         }
     </script>
 </body>
