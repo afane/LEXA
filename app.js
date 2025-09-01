@@ -196,35 +196,30 @@ class LexaTranslator {
         this.elements.outputText.value = 'Translating...';
 
         try {
-            const messages = [
-                {
-                    role: "system",
-                    content: systemPrompt
-                },
-                {
-                    role: "user", 
-                    content: `Convert this ${direction === 'law-to-xml' ? 'statutory text to XML' : 'XML to statutory language'}:\n\n${inputText}`
-                }
-            ];
+            // Build a single, explicit instruction prompt to avoid chat-template issues on tiny models
+            const prompt = this.buildPrompt(direction, systemPrompt, inputText);
 
             let response = '';
             this.elements.outputText.value = '';
 
-            const completion = await this.engine.chat.completions.create({
-                messages: messages,
-                temperature: 0.1,
+            const completion = await this.engine.completions.create({
+                prompt,
+                temperature: 0.0,
                 max_tokens: 1024,
                 stream: true
             });
 
             for await (const chunk of completion) {
-                const content = chunk.choices[0]?.delta?.content || '';
-                if (content) {
-                    response += content;
+                const piece = chunk.choices?.[0]?.text ?? chunk.choices?.[0]?.delta?.content ?? '';
+                if (piece) {
+                    response += piece;
                     this.elements.outputText.value = response;
                     this.elements.outputText.scrollTop = this.elements.outputText.scrollHeight;
                 }
             }
+
+            // Clean up any chat markers echoed by some templates
+            this.elements.outputText.value = this.stripChatMarkers(this.elements.outputText.value);
 
         } catch (error) {
             console.error('Translation error:', error);
@@ -234,6 +229,39 @@ class LexaTranslator {
             this.elements.translateBtn.disabled = false;
             this.elements.translateBtn.textContent = 'Translate';
         }
+    }
+
+    buildPrompt(direction, systemPrompt, inputText) {
+        if (direction === 'law-to-xml') {
+            return [
+                'You are a legal-to-XML translator.',
+                'Convert the statutory law text to well-formed, semantic XML.',
+                'Preserve all meaning and structure using tags like <section>, <subsection>, <definition>, <provision>.',
+                'Output ONLY XML with no extra commentary.',
+                '',
+                'INPUT:',
+                inputText
+            ].join('\n');
+        } else {
+            return [
+                'You are an XML-to-legal translator.',
+                'Convert the legal XML to readable statutory language while preserving meaning and structure.',
+                'Output clear prose; no XML in the output.',
+                '',
+                'INPUT:',
+                inputText
+            ].join('\n');
+        }
+    }
+
+    stripChatMarkers(text) {
+        if (!text) return text;
+        // Remove common chat markers echoed by some models
+        return text
+            .replace(/<\|user\|>/gi, '')
+            .replace(/<\|assistant\|>/gi, '')
+            .replace(/^#+\s*(user|assistant)\s*:?/gim, '')
+            .trim();
     }
 
     clearText() {
