@@ -2,7 +2,7 @@ class LexaTranslator {
     constructor() {
         this.engine = null;
         this.modelLoaded = false;
-        this.modelId = "Phi-3.5-mini-instruct-q4f16_1-MLC";
+        this.modelId = "Phi-3-mini-4k-instruct-q4f16_1-MLC";
         
         this.systemPrompts = {
             "law-to-xml": "You are a legal-to-XML translator. Convert the given statutory law text to structured XML with appropriate tags for sections, subsections, definitions, and provisions. Maintain all legal meaning and structure. Use semantic XML tags like <section>, <subsection>, <definition>, <provision>, etc.",
@@ -68,7 +68,10 @@ class LexaTranslator {
                 }
             });
 
-            await this.engine.reload(this.modelId);
+            await this.engine.reload(this.modelId, {
+                temperature: 0.1,
+                top_p: 0.95
+            });
             
             this.modelLoaded = true;
             this.updateStatus('Model loaded successfully!');
@@ -77,7 +80,7 @@ class LexaTranslator {
             
         } catch (error) {
             console.error('Failed to load model:', error);
-            this.updateStatus('Failed to load model. Please refresh and try again.');
+            this.updateStatus(`Failed to load model: ${error.message || 'Unknown error'}. Check browser console for details.`);
         }
     }
 
