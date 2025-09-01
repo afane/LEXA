@@ -1,8 +1,10 @@
+import { CreateMLCEngine } from "https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm@latest/+esm";
+
 class LexaTranslator {
     constructor() {
         this.engine = null;
         this.modelLoaded = false;
-        this.modelId = "Phi-3-mini-4k-instruct-q4f16_1-MLC";
+        this.modelId = "Qwen2-0.5B-Instruct-q4f32_1-MLC";
         
         this.systemPrompts = {
             "law-to-xml": "You are a legal-to-XML translator. Convert the given statutory law text to structured XML with appropriate tags for sections, subsections, definitions, and provisions. Maintain all legal meaning and structure. Use semantic XML tags like <section>, <subsection>, <definition>, <provision>, etc.",
@@ -57,20 +59,17 @@ class LexaTranslator {
         try {
             this.updateStatus('Loading AI model...', true);
             
-            this.engine = new webllm.MLCEngine();
-            
-            this.engine.setInitProgressCallback((report) => {
+            const initProgressCallback = (report) => {
                 const progress = Math.round(report.progress * 100);
                 this.updateProgress(progress);
                 
                 if (report.text) {
                     this.updateStatus(`Loading: ${report.text} (${progress}%)`);
                 }
-            });
+            };
 
-            await this.engine.reload(this.modelId, {
-                temperature: 0.1,
-                top_p: 0.95
+            this.engine = await CreateMLCEngine(this.modelId, {
+                initProgressCallback: initProgressCallback
             });
             
             this.modelLoaded = true;
