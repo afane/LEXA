@@ -37,6 +37,10 @@ class TranslationRequest(BaseModel):
     text: str
     direction: str  # "legal_to_xml" or "xml_to_legal"
 
+class EvaluationRequest(BaseModel):
+    legal_text: str
+    xml_text: str
+
 
 @app.get("/")
 async def health_check():
@@ -64,6 +68,18 @@ async def translate(request: TranslationRequest):
 @app.get("/health")
 async def health_check():
     return {"status": "healthy", "service": "Lexa Legal XML Translator"}
+
+
+@app.post("/evaluate")
+async def evaluate(request: EvaluationRequest):
+    if not request.legal_text.strip() or not request.xml_text.strip():
+        raise HTTPException(status_code=400, detail="Both legal_text and xml_text are required")
+
+    try:
+        result = gemini_client.evaluate_xml_against_legal(request.legal_text, request.xml_text)
+        return {"result": result}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Evaluation failed: {str(e)}")
 
 
 if __name__ == "__main__":
