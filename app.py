@@ -39,8 +39,8 @@ class TranslationRequest(BaseModel):
 
 
 @app.get("/")
-async def serve_frontend():
-    return FileResponse('frontend/index.html')
+async def health_check():
+    return {"status": "healthy", "message": "Lexa API is running"}
 
 
 @app.post("/translate")
