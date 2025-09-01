@@ -6,18 +6,23 @@ class LexaTranslator {
         this.modelLoaded = false;
         // Try small, browser-friendly models. We will auto-filter by what's actually available.
         this.candidateModels = [
-            "Phi-3-mini-4k-instruct-q4f16_1-MLC",
+            // Very small first
             "TinyLlama-1.1B-Chat-v1.0-q4f16_1-MLC",
             "Qwen2.5-0.5B-Instruct-q4f16_1-MLC",
-            "Qwen2-0.5B-Instruct-q4f32_1-MLC"
+            "Qwen2-0.5B-Instruct-q4f32_1-MLC",
+            "Llama-3.2-1B-Instruct-q4f16_1-MLC",
+            // Small/mini models
+            "Phi-3-mini-4k-instruct-q4f16_1-MLC",
+            "Phi-3.5-mini-instruct-q4f16_1-MLC"
         ];
         // Extra static fallbacks if prebuiltAppConfig is missing/empty
         this.staticFallbackModels = [
-            "Phi-3-mini-4k-instruct-q4f16_1-MLC",
-            "Phi-3-mini-4k-instruct-q4f32_1-MLC",
             "TinyLlama-1.1B-Chat-v1.0-q4f16_1-MLC",
+            "Qwen2.5-0.5B-Instruct-q4f16_1-MLC",
             "Qwen2-0.5B-Instruct-q4f32_1-MLC",
-            "Llama-3.2-1B-Instruct-q4f16_1-MLC"
+            "Llama-3.2-1B-Instruct-q4f16_1-MLC",
+            "Phi-3-mini-4k-instruct-q4f16_1-MLC",
+            "Phi-3.5-mini-instruct-q4f16_1-MLC"
         ];
         this.modelId = this.candidateModels[0];
         
@@ -81,12 +86,8 @@ class LexaTranslator {
         }
 
         let ordered = availableIds.length
-            ? this.candidateModels.filter(m => availableIds.includes(m))
+            ? this.prioritizeModels(availableIds, this.candidateModels)
             : [];
-
-        if (ordered.length === 0 && availableIds.length) {
-            ordered = this.pickSmallModelsFromPrebuilt(availableIds);
-        }
 
         if (!ordered.length) {
             ordered = [...this.staticFallbackModels];
@@ -124,25 +125,22 @@ class LexaTranslator {
         console.error('Model load failures:', errors);
     }
 
-    pickSmallModelsFromPrebuilt(keys) {
-        const families = [
-            'TinyLlama-1.1B-Chat',
-            'Qwen2.5-0.5B-Instruct',
-            'Qwen2-0.5B-Instruct',
-            'Phi-3-mini-4k-instruct'
-        ];
-        const quantPrefs = ['q4f16_1', 'q4f32_1'];
-        const results = [];
-        for (const fam of families) {
-            for (const q of quantPrefs) {
-                const match = keys.find(k => k.startsWith(fam) && k.includes(q));
-                if (match) results.push(match);
-            }
-        }
-        if (!results.length) {
-            results.push(...keys.filter(k => /TinyLlama|0\.5B|mini-4k/i.test(k)).slice(0, 3));
-        }
-        return results;
+    prioritizeModels(allIds, preferred) {
+        // Rank models by regex-based heuristics: smallest and quantized first
+        const rank = (id) => {
+            let r = 100;
+            if (/TinyLlama/i.test(id)) r -= 50;
+            if (/0\.5B/i.test(id) || /1B/i.test(id)) r -= 40;
+            if (/mini-4k/i.test(id)) r -= 30;
+            if (/Phi-3\.5-mini|Phi-3-mini/i.test(id)) r -= 20;
+            if (/Llama-3\.2-1B/i.test(id)) r -= 15;
+            if (/q4f16_1/i.test(id)) r -= 8;
+            if (/q4f32_1/i.test(id)) r -= 6;
+            // Nudge preferred ids to the front
+            if (preferred.includes(id)) r -= 3;
+            return r;
+        };
+        return [...allIds].sort((a,b) => rank(a) - rank(b));
     }
 
     updateStatus(message, showLoading = false) {
