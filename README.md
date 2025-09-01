@@ -2,15 +2,15 @@
 
 ## What is LEXA?
 
-LEXA is a browser-based AI application that translates legal statutory text to structured XML and vice versa. It runs entirely in your browser using WebLLM - no servers, no API keys, no data leaves your machine.
+LEXA is a browser-based AI application that translates legal statutory text to structured XML and vice versa. It runs entirely in your browser using WebLLM — no servers, no API keys, no data leaves your machine.
 
 ## Features
 
 - **Bidirectional Translation**: Convert legal text ↔ XML with semantic structure
-- **Browser-Native AI**: Runs Phi-3.5-mini model directly in your browser via WebGPU
+- **Browser-Native AI**: Runs small, browser-friendly models via WebGPU (no backend)
 - **Privacy First**: All processing happens locally - your legal documents never leave your device
 - **No Setup Required**: Static website deployment, no backend infrastructure needed
-- **Cached Loading**: Model downloads once (~4-8GB), then loads instantly on subsequent visits
+- **Cached Loading**: First load downloads a small model (hundreds of MB), then loads fast from cache
 
 ## Technical Requirements
 
@@ -20,15 +20,15 @@ LEXA is a browser-based AI application that translates legal statutory text to s
 - **Safari 16.4+** (macOS only)
 
 ### System Requirements
-- **Memory**: 8-16GB RAM recommended
+- **Memory**: 8–16GB RAM recommended
 - **GPU**: WebGPU-compatible graphics card
-- **Storage**: 8GB available space for model caching
+- **Storage**: ~0.5–1GB available space for model caching
 - **Platform**: Desktop only (mobile devices not supported)
 
 ## How It Works
 
-1. **First Visit**: Downloads Phi-3.5-mini AI model to browser (~4-8GB, 2-5 minutes)
-2. **Subsequent Visits**: Loads cached model instantly
+1. **First Visit**: Downloads a small AI model to your browser cache (hundreds of MB)
+2. **Subsequent Visits**: Loads cached model quickly
 3. **Translation**: Enter legal text or XML, select direction, click translate
 4. **Local Processing**: AI runs entirely in browser memory using WebGPU acceleration
 
@@ -55,9 +55,13 @@ Output structured XML:
 ### XML → Legal Text
 Reverse process converts structured XML back to readable statutory language.
 
-## Deployment
+## Quick Start (GitHub Pages)
 
-This is a static HTML/CSS/JS application that can be deployed to any web server or GitHub Pages.
+This is a static HTML/CSS/JS app — perfect for GitHub Pages.
+
+1. Push this repo to GitHub
+2. Enable GitHub Pages for the repo
+3. Open `https://<your-user>.github.io/<repo>/`
 
 ## File Structure
 
@@ -80,10 +84,10 @@ The application automatically detects WebGPU support and shows warnings for inco
 
 ## Performance Notes
 
-- **First Load**: 2-5 minutes depending on internet speed
-- **Model Size**: ~4-8GB cached in browser storage
-- **Translation Speed**: 2-10 seconds depending on text length and hardware
-- **Memory Usage**: 6-12GB RAM during active translation
+- **First Load**: A few minutes depending on internet speed
+- **Model Size**: Hundreds of MB cached in browser storage
+- **Translation Speed**: Seconds to tens of seconds depending on text length and hardware
+- **Memory Usage**: Several GB RAM during active translation (8–16GB recommended)
 
 ## Privacy & Security
 
@@ -123,6 +127,6 @@ The application automatically detects WebGPU support and shows warnings for inco
 
 Built with:
 - **WebLLM**: Browser-native LLM inference via WebAssembly + WebGPU
-- **Phi-3.5-mini**: Microsoft's efficient instruction-tuned language model
+- Small instruction-tuned models (e.g., TinyLlama, Qwen 0.5B, Phi‑3 mini)
 - **Vanilla JavaScript**: No frameworks, minimal dependencies
 - **Modern CSS**: Responsive design with CSS Grid/Flexbox

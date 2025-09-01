@@ -1,10 +1,17 @@
-import { CreateMLCEngine } from "https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm@latest/+esm";
+import { CreateMLCEngine, prebuiltAppConfig } from "https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm@latest/+esm";
 
 class LexaTranslator {
     constructor() {
         this.engine = null;
         this.modelLoaded = false;
-        this.modelId = "Qwen2-0.5B-Instruct-q4f32_1-MLC";
+        // Try small, browser-friendly models; auto-filter to what exists in prebuilt config
+        this.candidateModels = [
+            "Phi-3-mini-4k-instruct-q4f16_1-MLC",
+            "TinyLlama-1.1B-Chat-v1.0-q4f16_1-MLC",
+            "Qwen2.5-0.5B-Instruct-q4f16_1-MLC",
+            "Qwen2-0.5B-Instruct-q4f32_1-MLC"
+        ];
+        this.modelId = this.candidateModels[0];
         
         this.systemPrompts = {
             "law-to-xml": "You are a legal-to-XML translator. Convert the given statutory law text to structured XML with appropriate tags for sections, subsections, definitions, and provisions. Maintain all legal meaning and structure. Use semantic XML tags like <section>, <subsection>, <definition>, <provision>, etc.",
@@ -56,31 +63,71 @@ class LexaTranslator {
     }
 
     async initializeModel() {
-        try {
-            this.updateStatus('Loading AI model...', true);
-            
-            const initProgressCallback = (report) => {
-                const progress = Math.round(report.progress * 100);
-                this.updateProgress(progress);
-                
-                if (report.text) {
-                    this.updateStatus(`Loading: ${report.text} (${progress}%)`);
-                }
-            };
+        const availableKeys = prebuiltAppConfig?.model_list ? Object.keys(prebuiltAppConfig.model_list) : [];
+        const available = new Set(availableKeys);
+        let ordered = this.candidateModels.filter(m => available.has(m));
 
-            this.engine = await CreateMLCEngine(this.modelId, {
-                initProgressCallback: initProgressCallback
-            });
-            
-            this.modelLoaded = true;
-            this.updateStatus('Model loaded successfully!');
-            this.elements.translateBtn.disabled = false;
-            this.hideLoadingBar();
-            
-        } catch (error) {
-            console.error('Failed to load model:', error);
-            this.updateStatus(`Failed to load model: ${error.message || 'Unknown error'}. Check browser console for details.`);
+        if (ordered.length === 0 && availableKeys.length) {
+            ordered = this.pickSmallModelsFromPrebuilt(availableKeys);
         }
+
+        if (!ordered.length) {
+            this.updateStatus('No compatible models found for this browser');
+            console.error('No compatible models in prebuiltAppConfig.model_list');
+            return;
+        }
+
+        console.log('Trying models in order:', ordered);
+        const errors = [];
+
+        for (const model of ordered) {
+            try {
+                this.modelId = model;
+                this.updateStatus(`Loading model: ${model} ...`, true);
+
+                const initProgressCallback = (report) => {
+                    const progress = Math.round((report.progress || 0) * 100);
+                    this.updateProgress(progress);
+                    if (report.text) {
+                        this.updateStatus(`Loading ${model}: ${report.text} (${progress}%)`);
+                    }
+                };
+
+                this.engine = await CreateMLCEngine(this.modelId, { initProgressCallback });
+                this.modelLoaded = true;
+                this.updateStatus(`Model ready: ${model}`);
+                this.elements.translateBtn.disabled = false;
+                this.hideLoadingBar();
+                return;
+            } catch (error) {
+                console.warn(`Failed to load ${model}:`, error);
+                errors.push(`${model}: ${error?.message || 'Unknown error'}`);
+            }
+        }
+
+        this.updateStatus('Failed to load any model. See console for details.');
+        console.error('Model load failures:', errors);
+    }
+
+    pickSmallModelsFromPrebuilt(keys) {
+        const families = [
+            'TinyLlama-1.1B-Chat',
+            'Qwen2.5-0.5B-Instruct',
+            'Qwen2-0.5B-Instruct',
+            'Phi-3-mini-4k-instruct'
+        ];
+        const quantPrefs = ['q4f16_1', 'q4f32_1'];
+        const results = [];
+        for (const fam of families) {
+            for (const q of quantPrefs) {
+                const match = keys.find(k => k.startsWith(fam) && k.includes(q));
+                if (match) results.push(match);
+            }
+        }
+        if (!results.length) {
+            results.push(...keys.filter(k => /TinyLlama|0\.5B|mini-4k/i.test(k)).slice(0, 3));
+        }
+        return results;
     }
 
     updateStatus(message, showLoading = false) {
@@ -153,7 +200,7 @@ class LexaTranslator {
             const completion = await this.engine.chat.completions.create({
                 messages: messages,
                 temperature: 0.1,
-                max_tokens: 4096,
+                max_tokens: 1024,
                 stream: true
             });
 
