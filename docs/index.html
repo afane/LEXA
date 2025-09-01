@@ -116,7 +116,7 @@
             try {
                 // Use environment variable or default to localhost for development
                 const API_BASE_URL = window.location.hostname === 'afane.github.io' 
-                    ? 'https://your-backend-api.herokuapp.com' // Replace with your actual API URL
+                    ? 'https://lexa-production.up.railway.app'
                     : 'http://localhost:5000';
                 
                 const response = await fetch(`${API_BASE_URL}/translate`, {
