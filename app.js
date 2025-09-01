@@ -6,23 +6,24 @@ class LexaTranslator {
         this.modelLoaded = false;
         // Try small, browser-friendly models. We will auto-filter by what's actually available.
         this.candidateModels = [
-            // Very small first
-            "TinyLlama-1.1B-Chat-v1.0-q4f16_1-MLC",
+            // Prefer Phi-3 mini first if available
+            "Phi-3-mini-4k-instruct-q4f16_1-MLC",
+            "Phi-3.5-mini-instruct-q4f16_1-MLC",
+            // Other very small options
             "Qwen2.5-0.5B-Instruct-q4f16_1-MLC",
             "Qwen2-0.5B-Instruct-q4f32_1-MLC",
             "Llama-3.2-1B-Instruct-q4f16_1-MLC",
-            // Small/mini models
-            "Phi-3-mini-4k-instruct-q4f16_1-MLC",
-            "Phi-3.5-mini-instruct-q4f16_1-MLC"
+            // TinyLlama as a later fallback
+            "TinyLlama-1.1B-Chat-v1.0-q4f16_1-MLC"
         ];
         // Extra static fallbacks if prebuiltAppConfig is missing/empty
         this.staticFallbackModels = [
-            "TinyLlama-1.1B-Chat-v1.0-q4f16_1-MLC",
+            "Phi-3-mini-4k-instruct-q4f16_1-MLC",
+            "Phi-3.5-mini-instruct-q4f16_1-MLC",
             "Qwen2.5-0.5B-Instruct-q4f16_1-MLC",
             "Qwen2-0.5B-Instruct-q4f32_1-MLC",
             "Llama-3.2-1B-Instruct-q4f16_1-MLC",
-            "Phi-3-mini-4k-instruct-q4f16_1-MLC",
-            "Phi-3.5-mini-instruct-q4f16_1-MLC"
+            "TinyLlama-1.1B-Chat-v1.0-q4f16_1-MLC"
         ];
         this.modelId = this.candidateModels[0];
         
@@ -303,8 +304,47 @@ class LexaTranslator {
             Array.from(el.children).forEach(c => collapseSameTagWrappers(c));
         };
 
+        const collapseAlternatingChain = (el, tagA, tagB) => {
+            if (el.nodeType !== 1) return;
+            // Only attempt if current matches tagA and structure is linear with no text nodes
+            const isLinear = (node) => Array.from(node.childNodes).every(n => n.nodeType === 1);
+            if (el.nodeName !== tagA || !isLinear(el)) return;
+
+            const noAttrs = (node) => node.attributes.length === 0;
+            let cur = el;
+            let chain = [cur];
+            // Follow A->B->A->B ... as long as single element child, no text, no attributes
+            while (true) {
+                const kids = Array.from(cur.childNodes).filter(n => n.nodeType === 1);
+                if (kids.length !== 1) break;
+                const k = kids[0];
+                if (!noAttrs(cur) || !noAttrs(k)) break;
+                if (!((cur.nodeName === tagA && k.nodeName === tagB) || (cur.nodeName === tagB && k.nodeName === tagA))) break;
+                chain.push(k);
+                cur = k;
+                // Stop if chain gets unreasonably long
+                if (chain.length > 10) break;
+            }
+
+            if (chain.length >= 3) {
+                // Keep just the first two levels, move deepest children under the second node
+                const first = chain[0];
+                const second = chain[1];
+                const deepest = chain[chain.length - 1];
+                // Replace second's children with deepest's children
+                second.replaceChildren(...Array.from(deepest.childNodes));
+                // Remove intermediate nodes between second and deepest (already bypassed by replace)
+                // Nothing else to do; structure is now A->B->content
+            }
+
+            // Recurse
+            Array.from(el.children).forEach(c => collapseAlternatingChain(c, tagA, tagB));
+        };
+
         const root = dom.documentElement;
         collapseSameTagWrappers(root);
+        // Collapse pathological A/B alternations like definition/provision chains
+        collapseAlternatingChain(root, 'definition', 'provision');
 
         // Optional: enforce <document> as root by wrapping if root is not one of allowed
         const allowedRoots = new Set(['document', 'section']);
