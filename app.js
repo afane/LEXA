@@ -71,15 +71,23 @@ class LexaTranslator {
     }
 
     async initializeModel() {
-        const availableKeys = prebuiltAppConfig?.model_list ? Object.keys(prebuiltAppConfig.model_list) : [];
-        const available = new Set(availableKeys);
-        let ordered = this.candidateModels.filter(m => available.has(m));
-
-        if (ordered.length === 0 && availableKeys.length) {
-            ordered = this.pickSmallModelsFromPrebuilt(availableKeys);
+        const availableIds = Array.isArray(prebuiltAppConfig?.model_list)
+            ? prebuiltAppConfig.model_list.map(m => m?.model_id).filter(Boolean)
+            : [];
+        if (availableIds.length) {
+            console.log('WebLLM available models:', availableIds);
+        } else {
+            console.warn('WebLLM prebuiltAppConfig.model_list missing or empty; using static fallbacks');
         }
 
-        // If prebuilt list is empty/unavailable, fall back to a static list
+        let ordered = availableIds.length
+            ? this.candidateModels.filter(m => availableIds.includes(m))
+            : [];
+
+        if (ordered.length === 0 && availableIds.length) {
+            ordered = this.pickSmallModelsFromPrebuilt(availableIds);
+        }
+
         if (!ordered.length) {
             ordered = [...this.staticFallbackModels];
         }
