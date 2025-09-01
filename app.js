@@ -219,7 +219,11 @@ class LexaTranslator {
             }
 
             // Clean up any chat markers echoed by some templates
-            this.elements.outputText.value = this.stripChatMarkers(this.elements.outputText.value);
+            let finalText = this.stripChatMarkers(this.elements.outputText.value);
+            if (direction === 'law-to-xml') {
+                finalText = this.sanitizeAndDeduplicateXML(finalText);
+            }
+            this.elements.outputText.value = finalText;
 
         } catch (error) {
             console.error('Translation error:', error);
@@ -235,9 +239,12 @@ class LexaTranslator {
         if (direction === 'law-to-xml') {
             return [
                 'You are a legal-to-XML translator.',
-                'Convert the statutory law text to well-formed, semantic XML.',
-                'Preserve all meaning and structure using tags like <section>, <subsection>, <definition>, <provision>.',
-                'Output ONLY XML with no extra commentary.',
+                'Task: Convert the statutory law text to well-formed, semantic XML.',
+                'Constraints:',
+                '- Use tags: <document>, <section>, <subsection>, <definition>, <provision>.',
+                '- Do NOT nest a tag directly inside the same tag (no <definition> inside <definition> unless separated by <subsection>).',
+                '- Ensure a single root element. Prefer <document> as the root.',
+                '- Output ONLY XML. No explanations, no markdown.',
                 '',
                 'INPUT:',
                 inputText
@@ -262,6 +269,55 @@ class LexaTranslator {
             .replace(/<\|assistant\|>/gi, '')
             .replace(/^#+\s*(user|assistant)\s*:?/gim, '')
             .trim();
+    }
+
+    sanitizeAndDeduplicateXML(text) {
+        if (!text || typeof DOMParser === 'undefined') return text;
+        const tryParse = (src) => {
+            const p = new DOMParser();
+            const dom = p.parseFromString(src, 'application/xml');
+            const err = dom.querySelector('parsererror');
+            return err ? null : dom;
+        };
+
+        let dom = tryParse(text);
+        if (!dom) {
+            dom = tryParse(`<document>${text}</document>`);
+            if (!dom) return text; // give up: keep original
+        }
+
+        const collapseSameTagWrappers = (el) => {
+            if (el.nodeType !== 1) return; // elements only
+            // While element has a single element child with the same tag name, and no attributes on either, collapse
+            while (true) {
+                const elementChildren = Array.from(el.childNodes).filter(n => n.nodeType === 1);
+                const textChildren = Array.from(el.childNodes).filter(n => n.nodeType === 3 && n.textContent.trim().length > 0);
+                if (elementChildren.length !== 1 || textChildren.length > 0) break;
+                const child = elementChildren[0];
+                if (child.nodeName !== el.nodeName) break;
+                if (el.attributes.length > 0 || child.attributes.length > 0) break;
+                // lift child's children into el
+                el.replaceChildren(...Array.from(child.childNodes));
+            }
+            // Recurse
+            Array.from(el.children).forEach(c => collapseSameTagWrappers(c));
+        };
+
+        const root = dom.documentElement;
+        collapseSameTagWrappers(root);
+
+        // Optional: enforce <document> as root by wrapping if root is not one of allowed
+        const allowedRoots = new Set(['document', 'section']);
+        let outDom = dom;
+        if (!allowedRoots.has(root.nodeName)) {
+            const wrapper = new DOMParser().parseFromString('<document/>', 'application/xml');
+            const wroot = wrapper.documentElement;
+            wroot.appendChild(wrapper.importNode(root, true));
+            outDom = wrapper;
+        }
+
+        const s = new XMLSerializer();
+        return s.serializeToString(outDom);
     }
 
     clearText() {
