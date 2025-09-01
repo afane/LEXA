@@ -4,12 +4,20 @@ class LexaTranslator {
     constructor() {
         this.engine = null;
         this.modelLoaded = false;
-        // Try small, browser-friendly models; auto-filter to what exists in prebuilt config
+        // Try small, browser-friendly models. We will auto-filter by what's actually available.
         this.candidateModels = [
             "Phi-3-mini-4k-instruct-q4f16_1-MLC",
             "TinyLlama-1.1B-Chat-v1.0-q4f16_1-MLC",
             "Qwen2.5-0.5B-Instruct-q4f16_1-MLC",
             "Qwen2-0.5B-Instruct-q4f32_1-MLC"
+        ];
+        // Extra static fallbacks if prebuiltAppConfig is missing/empty
+        this.staticFallbackModels = [
+            "Phi-3-mini-4k-instruct-q4f16_1-MLC",
+            "Phi-3-mini-4k-instruct-q4f32_1-MLC",
+            "TinyLlama-1.1B-Chat-v1.0-q4f16_1-MLC",
+            "Qwen2-0.5B-Instruct-q4f32_1-MLC",
+            "Llama-3.2-1B-Instruct-q4f16_1-MLC"
         ];
         this.modelId = this.candidateModels[0];
         
@@ -71,10 +79,9 @@ class LexaTranslator {
             ordered = this.pickSmallModelsFromPrebuilt(availableKeys);
         }
 
+        // If prebuilt list is empty/unavailable, fall back to a static list
         if (!ordered.length) {
-            this.updateStatus('No compatible models found for this browser');
-            console.error('No compatible models in prebuiltAppConfig.model_list');
-            return;
+            ordered = [...this.staticFallbackModels];
         }
 
         console.log('Trying models in order:', ordered);
