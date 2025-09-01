@@ -34,29 +34,6 @@ Return clear, properly formatted legal text that maintains the original structur
 
         return self._generate_response(prompt)
 
-    def evaluate_xml_against_legal(self, legal_text: str, xml_text: str) -> str:
-        """Evaluate how well XML captures the statutory requirements in the legal text"""
-        prompt = f"""Evaluate how well the following XML implementation captures the statutory requirements in the legal text.
-
-Legal Text:
-{legal_text}
-
-XML Implementation:
-{xml_text}
-
-Provide a clear, structured report that includes:
-- Summary
-- Coverage
-- Accuracy
-- Completeness
-- Structure & Semantics
-- Gaps & Issues
-- Recommendations
-
-Be specific and cite exact elements/phrases when noting issues."""
-
-        return self._generate_response(prompt)
-
     @tenacity.retry(
         stop=tenacity.stop_after_attempt(3),
         wait=tenacity.wait_exponential(multiplier=1, min=5, max=30),
