@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Lexa - Legal XML Translator</title>
+    <title>LEXA - Legal XML Auditor</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
         body {
             font-family: Arial, sans-serif;
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 20px;
             background-color: #f5f5f5;
@@ -25,7 +25,7 @@
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-        .input-section, .output-section { flex: 1; }
+        .section { flex: 1; }
         .section-title {
             font-size: 18px;
             font-weight: bold;
@@ -41,6 +41,9 @@
             font-family: monospace;
             font-size: 14px;
             resize: vertical;
+        }
+        textarea[readonly] {
+            background-color: #f8f9fa;
         }
         button {
             padding: 12px 24px;
@@ -70,47 +73,60 @@
             border-radius: 4px;
             margin-top: 10px;
         }
+        .controls {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>Lexa - Legal XML Translator</h1>
-        <p>Convert between legal statutes and structured XML format</p>
+        <h1>LEXA - Legal XML Auditor</h1>
+        <p>Evaluate fidelity of XML rules against statutory requirements</p>
     </div>
 
     <div class="container">
-        <div class="input-section">
-            <div class="section-title">Input</div>
-            <textarea id="inputText" placeholder="Enter legal text or XML code here..."></textarea>
-            <br>
-            <button id="legalToXmlBtn" onclick="translateToXML()">Legal Text → XML</button>
-            <button id="xmlToLegalBtn" onclick="translateToLegal()">XML → Legal Text</button>
+        <div class="section">
+            <div class="section-title">Legal Text</div>
+            <textarea id="legalText" placeholder="Enter the statutory text here..."></textarea>
         </div>
-        <div class="output-section">
-            <div class="section-title">Output</div>
-            <textarea id="outputText" readonly placeholder="Translation results will appear here..."></textarea>
+        <div class="section">
+            <div class="section-title">XML Implementation</div>
+            <textarea id="xmlText" placeholder="Enter the XML implementation here..."></textarea>
+        </div>
+        <div class="section">
+            <div class="section-title">Evaluation Report</div>
+            <textarea id="evaluationReport" readonly placeholder="Evaluation results will appear here..."></textarea>
             <div id="errorDiv"></div>
         </div>
     </div>
 
+    <div class="controls">
+        <button id="evaluateBtn" onclick="evaluate()">Evaluate</button>
+        <button onclick="clearAll()">Clear All</button>
+    </div>
+
     <script>
-        async function translate(direction) {
-            const inputText = document.getElementById('inputText').value;
-            const outputText = document.getElementById('outputText');
+        async function evaluate() {
+            const legalText = document.getElementById('legalText').value;
+            const xmlText = document.getElementById('xmlText').value;
+            const evaluationReport = document.getElementById('evaluationReport');
             const errorDiv = document.getElementById('errorDiv');
             const buttons = document.querySelectorAll('button');
 
             // Clear previous errors
             errorDiv.innerHTML = '';
 
-            if (!inputText.trim()) {
-                showError('Please enter some text to translate');
+            if (!legalText.trim() || !xmlText.trim()) {
+                showError('Please enter both legal text and XML implementation');
                 return;
             }
 
             // Show loading state
-            outputText.value = 'Translating...';
-            outputText.className = 'loading';
+            evaluationReport.value = 'Evaluating...';
+            evaluationReport.className = 'loading';
             buttons.forEach(btn => btn.disabled = true);
 
             try {
@@ -119,26 +135,34 @@
                     ? 'https://lexa-production.up.railway.app'
                     : 'http://localhost:5000';
                 
+                const userMessage = `Legal Text:
+${legalText}
+
+XML Implementation:
+${xmlText}
+
+Task: Evaluate how well the XML implementation captures the statutory requirements. Analyze coverage, accuracy, completeness, and structure. Identify any gaps, misrepresentations, or improvements needed.`;
+                
                 const response = await fetch(`${API_BASE_URL}/translate`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        text: inputText,
-                        direction: direction
+                        text: userMessage,
+                        direction: 'legal_to_xml'
                     })
                 });
 
                 const data = await response.json();
 
                 if (!response.ok) {
-                    throw new Error(data.detail || 'Translation failed');
+                    throw new Error(data.detail || 'Evaluation failed');
                 }
 
-                outputText.value = data.result;
-                outputText.className = '';
+                evaluationReport.value = data.result;
+                evaluationReport.className = '';
             } catch (error) {
-                outputText.value = '';
-                showError('Translation failed: ' + error.message);
+                evaluationReport.value = '';
+                showError('Evaluation failed: ' + error.message);
             } finally {
                 buttons.forEach(btn => btn.disabled = false);
             }
@@ -149,12 +173,11 @@
             errorDiv.innerHTML = `<div class="error">${message}</div>`;
         }
 
-        function translateToXML() {
-            translate('legal_to_xml');
-        }
-
-        function translateToLegal() {
-            translate('xml_to_legal');
+        function clearAll() {
+            document.getElementById('legalText').value = '';
+            document.getElementById('xmlText').value = '';
+            document.getElementById('evaluationReport').value = '';
+            document.getElementById('errorDiv').innerHTML = '';
         }
     </script>
 </body>
