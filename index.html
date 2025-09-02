@@ -18,8 +18,9 @@
         .output-section { /* no top margin so title aligns with Input */ }
         .output-section .section-title { margin-top: 0px; }
         .output-panel { margin-top: 50px; }
-        .prompt-editor { margin-top: 10px; }
-        .prompt-editor textarea { height: 120px; font-family: monospace; }
+        .prompt-panel { margin: 8px 0 0 0; padding: 8px; border: 1px solid #e0e0e0; border-radius: 6px; background: #fafafa; }
+        .prompt-panel .prompt-label { font-size: 12px; color: #666; margin-bottom: 6px; font-weight: bold; }
+        .prompt-panel textarea { height: 70px; font-family: monospace; font-size: 13px; }
         textarea { width: 100%; height: 300px; border: 1px solid #ddd; border-radius: 4px; padding: 10px; font-family: monospace; font-size: 14px; resize: vertical; }
         .sub-section textarea { height: 140px; }
         button { padding: 12px 24px; margin: 10px 5px 0 0; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; }
@@ -51,18 +52,16 @@
                     <textarea id="xmlText" placeholder="Enter XML representation here..."><statute id="1253.9"> <sectionHeading>Student unemployment compensation eligibility</sectionHeading> <provision num="1"> <rule type="non-disqualification"> <statement> An unemployed individual may not be disqualified for unemployment compensation benefits <condition type="solely">on the basis that he or she is a student</condition>. </statement> </rule> </provision> <provision num="2"> <rule type="eligibility_for_availability"> <statement> An unemployed individual may be considered to be able and available for work <pursuantTo> <citation ref="1253(c)">subdivision (c) of Section 1253</citation> </pursuantTo>, <condition type="if">the school attendance does not eliminate a substantial portion of the individual's full-time labor market availability</condition>. </statement> </rule> </provision> <provision num="3"> <rule type="conditional_eligibility_for_part_time_work"> <statement> <ifClause>If an unemployed individual restricts his or her availability to part-time work due to school attendance</ifClause>, <thenClause> he or she may be considered to be able to work and available for work <condition type="if">he or she meets the criteria set forth in <citation ref="1253.8">Section 1253.8</citation></condition>. </thenClause> </statement> </rule> </provision> </statute></textarea>
                 </div>
             </div>
+            <div class="prompt-panel">
+                <div class="prompt-label">Evaluation Prompt (optional)</div>
+                <textarea id="promptText" placeholder="Add specific guidance to refine the evaluation...">Focus on semantic fidelity. Ignore purely presentational or organizational formatting differences (e.g., headings/titles, numbering, benign wrappers/attributes, whitespace) unless they introduce new text, change conditions/obligations, alter scope, or modify references/definitions. Only flag substantive discrepancies such as missing or extra legal content, incorrect citations, altered logical structure (if/then/except), or meaning changes.</textarea>
+            </div>
             <br>
             <button id="evaluateBtn" onclick="translateToXML()">Evaluate</button>
             <button id="clearBtn" onclick="clearInputs()">Clear</button>
         </div>
         <div class="output-section">
             <div class="section-title">Output</div>
-            <div class="prompt-editor">
-                <details>
-                    <summary>Edit evaluation prompt (optional)</summary>
-                    <textarea id="promptText" placeholder="Add specific guidance to refine the evaluation...">Focus on semantic fidelity. Ignore purely presentational or organizational formatting differences (e.g., headings/titles, numbering, benign wrappers/attributes, whitespace) unless they introduce new text, change conditions/obligations, alter scope, or modify references/definitions. Only flag substantive discrepancies such as missing or extra legal content, incorrect citations, altered logical structure (if/then/except), or meaning changes.</textarea>
-                </details>
-            </div>
             <div class="output-panel">
                 <textarea id="outputText" readonly placeholder="Evaluation results will appear here..."></textarea>
                 <div id="errorDiv"></div>
