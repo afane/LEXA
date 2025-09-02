@@ -14,7 +14,7 @@
         .sub-section { flex: 1; }
         .sub-title { font-size: 14px; font-weight: bold; margin-bottom: 5px; color: #666; }
         .section-title { font-size: 18px; font-weight: bold; margin-bottom: 10px; color: #444; }
-        .output-section .section-title { margin-top: 20px; }
+        .output-section .section-title { margin-top: 50px; }
         textarea { width: 100%; height: 300px; border: 1px solid #ddd; border-radius: 4px; padding: 10px; font-family: monospace; font-size: 14px; resize: vertical; }
         .sub-section textarea { height: 140px; }
         button { padding: 12px 24px; margin: 10px 5px 0 0; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; }
@@ -23,6 +23,8 @@
         .loading { color: #666; font-style: italic; }
         .error { color: #dc3545; background-color: #f8d7da; padding: 10px; border-radius: 4px; margin-top: 10px; }
         .missing-elements { color: #dc3545; font-weight: bold; }
+        .summary-correct { color: #28a745; font-weight: bold; }
+        .summary-issues { color: #dc3545; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -89,23 +91,37 @@
                 outputText.value = result;
                 outputText.className = '';
                 
-                // Highlight "Missing or incorrect elements" section in red
-                if (result.includes('Missing or Incorrect Elements:')) {
-                    const outputDiv = document.createElement('div');
-                    // Replace the entire section heading and content with red styling
-                    let highlightedResult = result.replace(
-                        /(Missing or Incorrect Elements:[\s\S]*?)(?=\n\n[A-Z]|\n\n$|$)/g,
-                        '<span class="missing-elements">$1</span>'
+                // Apply color coding to output
+                const outputDiv = document.createElement('div');
+                let highlightedResult = result;
+                
+                // Highlight Missing or Incorrect Elements section in red
+                highlightedResult = highlightedResult.replace(
+                    /(Missing or Incorrect Elements:[\s\S]*?)(?=\n\n[A-Z]|\n\n$|$)/g,
+                    '<span class="missing-elements">$1</span>'
+                );
+                
+                // Color code Summary section based on content
+                if (result.includes('Accurate representation') || result.includes('faithfully represents')) {
+                    highlightedResult = highlightedResult.replace(
+                        /(Summary:[\s\S]*?)$/g,
+                        '<span class="summary-correct">$1</span>'
                     );
-                    outputDiv.innerHTML = highlightedResult;
-                    outputDiv.style.fontFamily = 'monospace';
-                    outputDiv.style.fontSize = '14px';
-                    outputDiv.style.padding = '10px';
-                    outputDiv.style.whiteSpace = 'pre-wrap';
-                    outputDiv.style.lineHeight = '1.4';
-                    outputText.style.display = 'none';
-                    outputText.parentNode.appendChild(outputDiv);
+                } else if (result.includes('Contains discrepancies') || result.includes('issues') || result.includes('missing') || result.includes('incorrect')) {
+                    highlightedResult = highlightedResult.replace(
+                        /(Summary:[\s\S]*?)$/g,
+                        '<span class="summary-issues">$1</span>'
+                    );
                 }
+                
+                outputDiv.innerHTML = highlightedResult;
+                outputDiv.style.fontFamily = 'monospace';
+                outputDiv.style.fontSize = '14px';
+                outputDiv.style.padding = '10px';
+                outputDiv.style.whiteSpace = 'pre-wrap';
+                outputDiv.style.lineHeight = '1.4';
+                outputText.style.display = 'none';
+                outputText.parentNode.appendChild(outputDiv);
             } catch (error) {
                 outputText.value = '';
                 showError('Translation failed: ' + error.message);

@@ -16,21 +16,21 @@ class LexaGeminiClient:
 
     def translate_legal_to_xml(self, legal_text: str) -> str:
         """Evaluate legal text and XML accuracy"""
-        prompt = f"""Evaluate legal text vs XML. Be direct and concise. Use PLAIN TEXT only.
+        prompt = f"""Evaluate XML faithfulness to legal text. Use PLAIN TEXT only. NO ** formatting.
+
+CRITICAL: XML cannot be "better" than original legal code. Only evaluate faithfulness.
 
 Structural Accuracy:
-Brief analysis of XML tags vs legal structure.
-
-Semantic Preservation:
-Key meaning preserved or lost.
+Quick comparison of XML structure to legal text structure.
 
 Missing or Incorrect Elements:
-Specific issues only.
+List specific discrepancies only. Added elements not in original text are incorrect.
 
 Summary:
-Concise final assessment.
+If XML faithfully represents legal code: "Accurate representation"
+If XML has issues: "Contains discrepancies" + brief explanation of main issues
 
-Keep each section short. No verbose explanations.
+Be direct. No praise, no filler words.
 
 Input:
 {legal_text}"""
