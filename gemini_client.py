@@ -16,28 +16,23 @@ class LexaGeminiClient:
 
     def translate_legal_to_xml(self, legal_text: str) -> str:
         """Evaluate legal text and XML accuracy"""
-        prompt = f"""Evaluate the legal text and its XML representation for accuracy. Provide a well-formatted assessment using PLAIN TEXT ONLY.
-
-EVALUATION SUMMARY: Start with a brief overall assessment.
-
-Then provide detailed analysis with proper spacing between sections:
+        prompt = f"""Evaluate legal text vs XML. Be direct and concise. Use PLAIN TEXT only.
 
 Structural Accuracy:
-(Analysis of XML structure vs legal provisions)
+Brief analysis of XML tags vs legal structure.
 
 Semantic Preservation:
-(How well meaning is preserved)
+Key meaning preserved or lost.
 
 Missing or Incorrect Elements:
-(Any issues found - this section will be highlighted in red)
+Specific issues only.
 
-Overall Assessment:
-(Final evaluation)
+Summary:
+Concise final assessment.
 
-Use simple text with basic punctuation only. Add blank lines between sections for readability.
-Do NOT use markdown formatting like **bold**, *italics*, # headers, or special characters.
+Keep each section short. No verbose explanations.
 
-Input to evaluate:
+Input:
 {legal_text}"""
 
         return self._generate_response(prompt)
