@@ -87,11 +87,11 @@
         /* Keep Output title aligned with Input, but lower the panel */
         .output-section { /* no top margin so title aligns with Input */ }
         .output-section .section-title { margin-top: 0px; }
-        .output-panel { margin-top: 50px; }
-        .output-render { width: 100%; height: 220px; border: 1px solid var(--border); border-radius: 8px; padding: 10px; font-family: monospace; font-size: 14px; overflow: auto; white-space: pre-wrap; line-height: 1.4; background: #fff; }
+        .output-panel { margin-top: 20px; }
+        .output-render { width: 100%; height: 220px; border: 1px solid var(--border); border-radius: 8px; padding: 10px; font-family: monospace; font-size: 14px; overflow: auto; white-space: pre-wrap; line-height: 1.4; background: #fff; box-sizing: border-box; }
         .prompt-panel { 
             margin: 16px 0 0 0; 
-            padding: 12px; 
+            padding: 8px; 
             border: 1px solid var(--border); 
             border-radius: 12px; 
             background: var(--accent-light);
@@ -100,12 +100,12 @@
         .prompt-panel .prompt-label { 
             font-size: 0.8125rem; 
             color: var(--text-secondary); 
-            margin-bottom: 8px; 
+            margin-bottom: 6px; 
             font-weight: 600; 
             text-transform: uppercase;
             letter-spacing: 0.05em;
         }
-        .prompt-panel textarea { height: 36px; font-family: monospace; font-size: 13px; }
+        .prompt-panel textarea { height: 32px; font-family: monospace; font-size: 13px; box-sizing: border-box; width: 100%; }
         .actions { margin-top: 8px; }
         textarea { 
             width: 100%; 
