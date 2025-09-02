@@ -14,7 +14,7 @@
         .sub-section { flex: 1; }
         .sub-title { font-size: 14px; font-weight: bold; margin-bottom: 5px; color: #666; }
         .section-title { font-size: 18px; font-weight: bold; margin-bottom: 10px; color: #444; }
-        .output-section .section-title { margin-top: 50px; }
+        .output-section { margin-top: 50px; }
         textarea { width: 100%; height: 300px; border: 1px solid #ddd; border-radius: 4px; padding: 10px; font-family: monospace; font-size: 14px; resize: vertical; }
         .sub-section textarea { height: 140px; }
         button { padding: 12px 24px; margin: 10px 5px 0 0; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; }
@@ -91,17 +91,11 @@
                 outputText.value = result;
                 outputText.className = '';
                 
-                // Apply color coding to output
+                // Apply color coding to output - ONLY Summary section
                 const outputDiv = document.createElement('div');
                 let highlightedResult = result;
                 
-                // Highlight Missing or Incorrect Elements section in red
-                highlightedResult = highlightedResult.replace(
-                    /(Missing or Incorrect Elements:[\s\S]*?)(?=\n\n[A-Z]|\n\n$|$)/g,
-                    '<span class="missing-elements">$1</span>'
-                );
-                
-                // Color code Summary section based on content
+                // Color code ONLY Summary section based on content
                 if (result.includes('Accurate representation') || result.includes('faithfully represents')) {
                     highlightedResult = highlightedResult.replace(
                         /(Summary:[\s\S]*?)$/g,
