@@ -67,7 +67,7 @@
 
     <div class="prompt-panel">
         <div class="prompt-label">Evaluation Prompt (optional)</div>
-        <textarea id="promptText" placeholder="Add specific guidance to refine the evaluation...">Focus on semantic fidelity. Ignore purely presentational or organizational formatting differences (e.g., headings/titles, numbering, benign wrappers/attributes, whitespace) unless they introduce new text, change conditions/obligations, alter scope, or modify references/definitions. Only flag substantive discrepancies such as missing or extra legal content, incorrect citations, altered logical structure (if/then/except), or meaning changes.</textarea>
+        <textarea id="promptText" placeholder="Add specific guidance to refine the evaluation...">Be concise. Evaluate semantic fidelity only; ignore formatting-only differences unless meaning changes.</textarea>
     </div>
 
     <div class="actions">
@@ -111,14 +111,19 @@
                 outputText.value = result;
                 outputText.className = '';
 
-                // Highlight Summary section only and render in fixed-height box
+                // Highlight Summary section only and render at TOP in fixed-height box
                 const outputRender = document.getElementById('outputRender');
                 let rendered = result;
                 const summaryMatch = result.match(/Summary:[\s\S]*$/i);
                 if (summaryMatch) {
                     const summaryText = summaryMatch[0];
-                    const isAccurate = /(^|\b)Accurate representation\b/i.test(summaryText) && !/Not\s+accurate\s+representation/i.test(summaryText);
-                    const wrapClass = isAccurate ? 'summary-correct' : 'summary-issues';
+                    const after = summaryText.replace(/^[ \t]*Summary:\s*/i, '').trim();
+                    let wrapClass = 'summary-issues';
+                    if (/^accurate\b/i.test(after)) {
+                        wrapClass = 'summary-correct';
+                    } else if (/^not\b/i.test(after)) {
+                        wrapClass = 'summary-issues';
+                    }
                     const rest = result.replace(/Summary:[\s\S]*$/i, '').trimEnd();
                     const coloredSummary = `<div class="${wrapClass}">${summaryText}</div>`;
                     rendered = `${coloredSummary}\n\n${rest}`;
