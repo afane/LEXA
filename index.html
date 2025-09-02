@@ -37,15 +37,16 @@
             <div class="input-split">
                 <div class="sub-section">
                     <div class="sub-title">Legal Code</div>
-                    <textarea id="legalText" placeholder="Enter legal statute text here..."></textarea>
+                    <textarea id="legalText" placeholder="Enter legal statute text here...">1253.9. An unemployed individual may not be disqualified for unemployment compensation benefits solely on the basis that he or she is a student. An unemployed individual may be considered to be able and available for work pursuant to subdivision (c) of Section 1253, if the school attendance does not eliminate a substantial portion of the individual's full-time labor market availability. If an unemployed individual restricts his or her availability to part-time work due to school attendance, he or she may be considered to be able to work and available for work if he or she meets the criteria set forth in Section 1253.8.</textarea>
                 </div>
                 <div class="sub-section">
                     <div class="sub-title">XML</div>
-                    <textarea id="xmlText" placeholder="Enter XML representation here..."></textarea>
+                    <textarea id="xmlText" placeholder="Enter XML representation here..."><statute id="1253.9"> <sectionHeading>Student unemployment compensation eligibility</sectionHeading> <provision num="1"> <rule type="non-disqualification"> <statement> An unemployed individual may not be disqualified for unemployment compensation benefits <condition type="solely">on the basis that he or she is a student</condition>. </statement> </rule> </provision> <provision num="2"> <rule type="eligibility_for_availability"> <statement> An unemployed individual may be considered to be able and available for work <pursuantTo> <citation ref="1253(c)">subdivision (c) of Section 1253</citation> </pursuantTo>, <condition type="if">the school attendance does not eliminate a substantial portion of the individual's full-time labor market availability</condition>. </statement> </rule> </provision> <provision num="3"> <rule type="conditional_eligibility_for_part_time_work"> <statement> <ifClause>If an unemployed individual restricts his or her availability to part-time work due to school attendance</ifClause>, <thenClause> he or she may be considered to be able to work and available for work <condition type="if">he or she meets the criteria set forth in <citation ref="1253.8">Section 1253.8</citation></condition>. </thenClause> </statement> </rule> </provision> </statute></textarea>
                 </div>
             </div>
             <br>
             <button id="evaluateBtn" onclick="translateToXML()">Evaluate</button>
+            <button id="clearBtn" onclick="clearInputs()">Clear</button>
         </div>
         <div class="output-section">
             <div class="section-title">Output</div>
@@ -119,6 +120,20 @@
         }
 
         function translateToXML() { translate('legal_to_xml'); }
+
+        function clearInputs() {
+            document.getElementById('legalText').value = '';
+            document.getElementById('xmlText').value = '';
+            document.getElementById('outputText').value = '';
+            document.getElementById('errorDiv').innerHTML = '';
+            
+            // Remove any HTML output div if it exists
+            const existingOutputDiv = document.querySelector('.output-section div:not(#errorDiv):not(.section-title)');
+            if (existingOutputDiv && existingOutputDiv.tagName === 'DIV' && existingOutputDiv.style.fontFamily === 'monospace') {
+                existingOutputDiv.remove();
+                document.getElementById('outputText').style.display = 'block';
+            }
+        }
     </script>
 </body>
 </html>
