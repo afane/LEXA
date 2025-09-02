@@ -29,8 +29,7 @@
             <div class="section-title">Input</div>
             <textarea id="inputText" placeholder="Enter legal text or XML code here..."></textarea>
             <br>
-            <button id="legalToXmlBtn" onclick="translateToXML()">Legal Text → XML</button>
-            <button id="xmlToLegalBtn" onclick="translateToLegal()">XML → Legal Text</button>
+            <button id="evaluateBtn" onclick="translateToXML()">Evaluate</button>
         </div>
         <div class="output-section">
             <div class="section-title">Output</div>
@@ -83,7 +82,6 @@
         }
 
         function translateToXML() { translate('legal_to_xml'); }
-        function translateToLegal() { translate('xml_to_legal'); }
     </script>
 </body>
 </html>
