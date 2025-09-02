@@ -15,12 +15,23 @@ class LexaGeminiClient:
         self.model_name = "gemini-2.5-flash"
 
     def translate_legal_to_xml(self, legal_text: str) -> str:
-        """Convert legal statute to XML"""
-        prompt = f"""Convert this legal statute/provision to structured XML format:
+        """Evaluate legal text and XML accuracy"""
+        prompt = f"""You will be given legal text followed by its corresponding XML representation. Evaluate the accuracy of the XML conversion and produce a concise report.
 
-{legal_text}
+Input format expected:
+- Legal statute text
+- XML representation of that statute
 
-Return only valid XML with appropriate semantic tags for legal elements (sections, subsections, definitions, requirements, etc.)."""
+Your task is to analyze whether the XML accurately captures the legal structure, provisions, conditions, and semantic meaning of the original legal text.
+
+Provide a concise evaluation report covering:
+- Structural accuracy
+- Semantic preservation
+- Any missing or incorrect elements
+- Overall assessment
+
+Input to evaluate:
+{legal_text}"""
 
         return self._generate_response(prompt)
 
