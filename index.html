@@ -6,51 +6,145 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
         :root {
-            --bg-1: #f6f8fc;
-            --bg-2: #eef2f9;
+            --bg-1: #f8fafc;
+            --bg-2: #f1f5f9;
             --panel-bg: #ffffff;
-            --panel-shadow: 0 6px 18px rgba(20, 30, 55, 0.08);
-            --text: #1f2937;         /* Slate-800 */
-            --muted: #6b7280;        /* Slate-500 */
-            --border: #e5e7eb;       /* Slate-200 */
-            --accent: #0d6efd;       /* Bootstrap primary */
-            --accent-hover: #0b5ed7;
-            --danger: #dc3545;
-            --success: #198754;
+            --panel-shadow: 0 8px 25px rgba(15, 23, 42, 0.08);
+            --text: #0f172a;         /* Slate-900 */
+            --text-secondary: #334155; /* Slate-700 */
+            --muted: #64748b;        /* Slate-500 */
+            --border: #e2e8f0;       /* Slate-200 */
+            --accent: #2563eb;       /* Blue-600 */
+            --accent-hover: #1d4ed8; /* Blue-700 */
+            --accent-light: #dbeafe; /* Blue-100 */
+            --danger: #dc2626;       /* Red-600 */
+            --success: #16a34a;      /* Green-600 */
+            --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
 
         body {
-            font-family: Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
             color: var(--text);
-            background: linear-gradient(180deg, var(--bg-1), var(--bg-2));
+            background: linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 100%);
+            min-height: 100vh;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
         }
-        .header { text-align: center; margin-bottom: 30px; color: var(--text); }
-        .container { display: flex; gap: 20px; align-items: flex-start; background: var(--panel-bg); padding: 20px; border-radius: 10px; box-shadow: var(--panel-shadow); }
+        .header { 
+            text-align: center; 
+            margin-bottom: 40px; 
+            color: var(--text); 
+            padding: 20px 0;
+        }
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0 0 10px 0;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.025em;
+        }
+        .header p {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            margin: 0;
+            font-weight: 400;
+        }
+        .container { 
+            display: flex; 
+            gap: 24px; 
+            align-items: flex-start; 
+            background: var(--panel-bg); 
+            padding: 24px; 
+            border-radius: 12px; 
+            box-shadow: var(--panel-shadow); 
+            border: 1px solid var(--border);
+        }
         .input-section { flex: 1.2; }
         .output-section { flex: 1; }
         .input-split { display: flex; flex-direction: column; gap: 10px; }
         .sub-section { flex: 1; }
-        .sub-title { font-size: 14px; font-weight: bold; margin-bottom: 5px; color: var(--muted); }
-        .section-title { font-size: 18px; font-weight: bold; margin-bottom: 10px; color: var(--text); letter-spacing: 0.2px; }
+        .sub-title { 
+            font-size: 0.875rem; 
+            font-weight: 600; 
+            margin-bottom: 8px; 
+            color: var(--muted); 
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .section-title { 
+            font-size: 1.25rem; 
+            font-weight: 600; 
+            margin-bottom: 12px; 
+            color: var(--text); 
+            letter-spacing: -0.025em;
+        }
         /* Keep Output title aligned with Input, but lower the panel */
         .output-section { /* no top margin so title aligns with Input */ }
         .output-section .section-title { margin-top: 0px; }
         .output-panel { margin-top: 50px; }
         .output-render { width: 100%; height: 300px; border: 1px solid var(--border); border-radius: 8px; padding: 10px; font-family: monospace; font-size: 14px; overflow: auto; white-space: pre-wrap; line-height: 1.4; background: #fff; }
-        .prompt-panel { margin: 16px 0 0 0; padding: 8px; border: 1px solid var(--border); border-radius: 8px; background: #fafcff; }
-        .prompt-panel .prompt-label { font-size: 12px; color: var(--muted); margin-bottom: 6px; font-weight: bold; letter-spacing: 0.15px; }
+        .prompt-panel { 
+            margin: 20px 0 0 0; 
+            padding: 16px; 
+            border: 1px solid var(--border); 
+            border-radius: 12px; 
+            background: var(--accent-light);
+            box-shadow: 0 2px 4px rgba(15, 23, 42, 0.04);
+        }
+        .prompt-panel .prompt-label { 
+            font-size: 0.8125rem; 
+            color: var(--text-secondary); 
+            margin-bottom: 8px; 
+            font-weight: 600; 
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
         .prompt-panel textarea { height: 56px; font-family: monospace; font-size: 13px; }
         .actions { margin-top: 10px; }
-        textarea { width: 100%; height: 300px; border: 1px solid var(--border); border-radius: 8px; padding: 10px; font-family: monospace; font-size: 14px; resize: vertical; background: #fff; color: var(--text); }
-        textarea:focus { outline: 2px solid rgba(13, 110, 253, 0.2); box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.12); }
+        textarea { 
+            width: 100%; 
+            height: 300px; 
+            border: 1px solid var(--border); 
+            border-radius: 8px; 
+            padding: 12px; 
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace; 
+            font-size: 14px; 
+            line-height: 1.5;
+            resize: vertical; 
+            background: #fff; 
+            color: var(--text); 
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+        textarea:focus { 
+            outline: none;
+            border-color: var(--accent); 
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
         .sub-section textarea { height: 140px; }
-        button { padding: 12px 24px; margin: 10px 5px 0 0; background-color: var(--accent); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; transition: background-color 0.15s ease, transform 0.02s ease; }
-        button:hover { background-color: var(--accent-hover); }
+        button { 
+            padding: 12px 24px; 
+            margin: 12px 8px 0 0; 
+            background: var(--accent); 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-size: 14px; 
+            font-weight: 500;
+            transition: all 0.15s ease; 
+            box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+        }
+        button:hover { 
+            background: var(--accent-hover); 
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(37, 99, 235, 0.25);
+        }
         button:active { transform: translateY(1px); }
         button:disabled { background-color: #9aa4b2; cursor: not-allowed; }
         .loading { color: var(--muted); font-style: italic; }
@@ -72,11 +166,60 @@
             <div class="input-split">
                 <div class="sub-section">
                     <div class="sub-title">Legal Code</div>
-                    <textarea id="legalText" placeholder="Enter legal statute text here...">1253.9. An unemployed individual may not be disqualified for unemployment compensation benefits solely on the basis that he or she is a student. An unemployed individual may be considered to be able and available for work pursuant to subdivision (c) of Section 1253, if the school attendance does not eliminate a substantial portion of the individual's full-time labor market availability. If an unemployed individual restricts his or her availability to part-time work due to school attendance, he or she may be considered to be able to work and available for work if he or she meets the criteria set forth in Section 1253.8.</textarea>
+                    <textarea id="legalText" placeholder="Enter legal statute text here...">2024 Maryland Statutes Labor and Employment Title 8 - Unemployment Insurance Subtitle 10 - Disqualification Section 8-1009 - Severance Pay Universal Citation: MD Labor and Employment Code § 8-1009 (2024) Learn more Previous (a) (1) For each week that the Secretary finds an individual who otherwise is eligible for benefits receives or is eligible to receive dismissal payment or wages in lieu of notice, regardless of whether the payment is required by law: (i) if the payment at least equals the individual's weekly benefit amount, the individual is disqualified from receiving benefits; or (ii) if the payment is less than the individual's weekly benefit amount, the individual may receive benefits reduced by the amount of the payment. (2) Dismissal payment or wages in lieu of notice shall be allocated to a number of weeks following separation from employment that equals the number of weeks of wages received. (b) An individual who is otherwise eligible for benefits, including benefits payable under the Unemployment Compensation for Ex–Service Members Program in accordance with 5 U.S.C. § 8521 may receive benefits, and the benefits may not be reduced under subsection (a)(2) of this section, for each week that the Secretary finds that the individual receives or is eligible to receive military disability severance payments.</textarea>
                 </div>
                 <div class="sub-section">
                     <div class="sub-title">XML</div>
-                    <textarea id="xmlText" placeholder="Enter XML representation here..."><statute id="1253.9"> <sectionHeading>Student unemployment compensation eligibility</sectionHeading> <provision num="1"> <rule type="non-disqualification"> <statement> An unemployed individual may not be disqualified for unemployment compensation benefits <condition type="solely">on the basis that he or she is a student</condition>. </statement> </rule> </provision> <provision num="2"> <rule type="eligibility_for_availability"> <statement> An unemployed individual may be considered to be able and available for work <pursuantTo> <citation ref="1253(c)">subdivision (c) of Section 1253</citation> </pursuantTo>, <condition type="if">the school attendance does not eliminate a substantial portion of the individual's full-time labor market availability</condition>. </statement> </rule> </provision> <provision num="3"> <rule type="conditional_eligibility_for_part_time_work"> <statement> <ifClause>If an unemployed individual restricts his or her availability to part-time work due to school attendance</ifClause>, <thenClause> he or she may be considered to be able to work and available for work <condition type="if">he or she meets the criteria set forth in <citation ref="1253.8">Section 1253.8</citation></condition>. </thenClause> </statement> </rule> </provision> </statute></textarea>
+                    <textarea id="xmlText" placeholder="Enter XML representation here..."><statute id="MD-LE-8-1009-2024">
+  <jurisdiction>Maryland</jurisdiction>
+  <codeTitle>Labor and Employment</codeTitle>
+  <title number="8">Unemployment Insurance</title>
+  <subtitle number="10">Disqualification</subtitle>
+  <section number="8-1009">
+    <sectionHeading>Severance Pay</sectionHeading>
+    <universalCitation>MD Labor and Employment Code § 8-1009 (2024)</universalCitation>
+
+    <provision num="a">
+      <subProvision num="1">
+        <rule type="dismissal-payment">
+          <statement>
+            For each week that the Secretary finds an individual who otherwise is eligible for benefits 
+            receives or is eligible to receive dismissal payment or wages in lieu of notice, regardless of 
+            whether the payment is required by law:
+          </statement>
+          <condition num="i">
+            If the payment at least equals the individual's weekly benefit amount,
+            <outcome type="disqualification">the individual is disqualified from receiving benefits</outcome>.
+          </condition>
+          <condition num="ii">
+            If the payment is more than the individual's weekly benefit amount,
+            <outcome type="reduction">the individual may receive benefits reduced by the amount of the payment</outcome>.
+          </condition>
+        </rule>
+      </subProvision>
+      <subProvision num="2">
+        <rule type="allocation">
+          <statement>
+            Dismissal payment or wages in lieu of notice shall be allocated to a number of weeks following
+            separation from employment that equals the number of weeks of wages received.
+          </statement>
+        </rule>
+      </subProvision>
+    </provision>
+
+    <provision num="b">
+      <rule type="military-disability-severance">
+        <statement>
+          An individual who is otherwise eligible for benefits, including benefits payable under the 
+          Unemployment Compensation for Ex–Service Members Program in accordance with 5 U.S.C. § 8521,
+          may receive benefits, and the benefits may not be reduced under subsection (a)(2) of this section,
+          for each week that the Secretary finds that the individual receives or is eligible to receive 
+          military disability severance payments.
+        </statement>
+      </rule>
+    </provision>
+  </section>
+</statute></textarea>
                 </div>
             </div>
         </div>
