@@ -113,16 +113,18 @@
 
                 // Highlight Summary section only and render in fixed-height box
                 const outputRender = document.getElementById('outputRender');
-                let highlightedResult = result;
+                let rendered = result;
                 const summaryMatch = result.match(/Summary:[\s\S]*$/i);
                 if (summaryMatch) {
                     const summaryText = summaryMatch[0];
                     const isAccurate = /(^|\b)Accurate representation\b/i.test(summaryText) && !/Not\s+accurate\s+representation/i.test(summaryText);
                     const wrapClass = isAccurate ? 'summary-correct' : 'summary-issues';
-                    highlightedResult = result.replace(/Summary:[\s\S]*$/i, `<span class="${wrapClass}">${summaryText}</span>`);
+                    const rest = result.replace(/Summary:[\s\S]*$/i, '').trimEnd();
+                    const coloredSummary = `<div class="${wrapClass}">${summaryText}</div>`;
+                    rendered = `${coloredSummary}\n\n${rest}`;
                 }
 
-                outputRender.innerHTML = highlightedResult;
+                outputRender.innerHTML = rendered;
                 outputRender.style.display = 'block';
                 outputText.style.display = 'none';
             } catch (error) {
