@@ -3,6 +3,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from typing import Optional
 from gemini_client import LexaGeminiClient
 import os
 from dotenv import load_dotenv
@@ -36,6 +37,7 @@ except ValueError as e:
 class TranslationRequest(BaseModel):
     text: str
     direction: str  # "legal_to_xml" or "xml_to_legal"
+    prompt: Optional[str] = None
 
 
 @app.get("/")
@@ -50,7 +52,7 @@ async def translate(request: TranslationRequest):
 
     try:
         if request.direction == "legal_to_xml":
-            result = gemini_client.translate_legal_to_xml(request.text)
+            result = gemini_client.translate_legal_to_xml(request.text, guidance=request.prompt)
         elif request.direction == "xml_to_legal":
             result = gemini_client.translate_xml_to_legal(request.text)
         else:

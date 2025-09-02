@@ -2,6 +2,7 @@ import os
 from google import genai
 from google.genai import types
 import tenacity
+from typing import Optional
 
 
 class LexaGeminiClient:
@@ -14,25 +15,30 @@ class LexaGeminiClient:
         self.client = genai.Client(api_key=api_key)
         self.model_name = "gemini-2.5-flash"
 
-    def translate_legal_to_xml(self, legal_text: str) -> str:
+    def translate_legal_to_xml(self, legal_text: str, guidance: Optional[str] = None) -> str:
         """Evaluate legal text and XML accuracy"""
-        prompt = f"""Evaluate XML faithfulness to legal text. Use PLAIN TEXT only. NO ** formatting.
+        base_instructions = (
+            "Evaluate XML faithfulness to the legal text. Use PLAIN TEXT only. NO markdown or ** formatting.\n\n"
+            "Principles:\n"
+            "- Focus on semantic fidelity.\n"
+            "- Ignore purely presentational/organizational formatting differences (e.g., headings/titles, numbering, benign wrappers/attributes, whitespace) unless they introduce new text, change conditions/obligations, alter scope, or modify references/definitions.\n"
+            "- Do not reward XML for being 'better' drafted; assess only faithfulness to the source.\n\n"
+            "Structural Accuracy:\n"
+            "- Briefly compare XML structure to the legal text's logical structure (conditions, exceptions, citations).\n\n"
+            "Discrepancies (be specific):\n"
+            "- Missing or extra substantive content\n"
+            "- Incorrect or invented citations\n"
+            "- Altered logical structure (if/then/except) or scope\n"
+            "- Misstated definitions or obligations\n\n"
+            "Summary:\n"
+            "- If faithful: 'Accurate representation'\n"
+            "- If not: state exactly what is wrong (missing text, added obligations/conditions, incorrect structure/citations).\n\n"
+            "Be direct and concise. No praise or filler.\n\n"
+        )
 
-CRITICAL: XML cannot be "better" than original legal code. Only evaluate faithfulness.
+        extra = (f"Additional guidance from user:\n{guidance}\n\n" if guidance and guidance.strip() else "")
 
-Structural Accuracy:
-Quick comparison of XML structure to legal text structure.
-
-Missing or Incorrect Elements:
-List specific discrepancies only. Added elements not in original text are incorrect.
-
-Summary:
-If XML faithfully represents legal code: "Accurate representation"  
-If XML has issues: State exactly what is wrong - missing text, added elements, incorrect structure
-
-Be direct. No praise, no filler words.
-
-Input:
+        prompt = f"""{base_instructions}{extra}Input:
 {legal_text}"""
 
         return self._generate_response(prompt)
