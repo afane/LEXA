@@ -27,8 +27,8 @@ Missing or Incorrect Elements:
 List specific discrepancies only. Added elements not in original text are incorrect.
 
 Summary:
-If XML faithfully represents legal code: "Accurate representation"
-If XML has issues: "Contains discrepancies" + brief explanation of main issues
+If XML faithfully represents legal code: "Accurate representation"  
+If XML has issues: State exactly what is wrong - missing text, added elements, incorrect structure
 
 Be direct. No praise, no filler words.
 
